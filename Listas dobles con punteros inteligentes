@@ -1,0 +1,159 @@
+#include <iostream>
+#include <memory>
+#include <limits>
+
+
+//Ejercicio: Crear una lista doble en la cual se eliminen nodos repetidos. Usar punteros inteligentes.
+
+//Estructura para los nodos de la lista.
+struct nodo {
+  int valor;
+  std::unique_ptr<nodo> siguiente;
+  nodo* anterior;
+};
+
+//Para evitar escribir tanto texto.
+using unique_nodo = std::unique_ptr<nodo>;
+
+//---------------Prototipos de función---------------//
+unique_nodo crear_nodo();
+void insertar_ordenado(unique_nodo& cabeza, nodo*& cola);
+void mostrar_lista(const unique_nodo& cabeza);
+void eliminar_repetidos(unique_nodo& cabeza);
+
+
+//---------------Función principal---------------//
+int main() { 
+  unique_nodo cabeza = nullptr;
+  nodo* cola = nullptr;
+
+  for (size_t i = 0;i < 4; i++) {
+    insertar_ordenado(cabeza, cola);
+  }
+
+  std::cout << "\nLista original:\n";
+  mostrar_lista(cabeza);
+
+  eliminar_repetidos(cabeza);
+
+  std::cout << "\nLista después de eliminar nodos repetidos:\n";
+  mostrar_lista(cabeza);
+
+  return 0; 
+
+  //añadir un menú de opciones.
+}
+
+//---------------Funciones---------------//
+unique_nodo crear_nodo() {
+  unique_nodo nuevo_nodo = std::make_unique<nodo>();
+
+  std::cout << "Ingrese un valor numérico para el nodo: "; std::cin >> nuevo_nodo->valor;
+
+  //Validar.
+  if (std::cin.fail()) {
+    while(true) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cout << "Error. Ingrese un valor numérico para el nodo: "; std::cin >> nuevo_nodo->valor;
+      if (!std::cin.fail()) {
+        break;
+      }
+    }
+  }
+
+  return nuevo_nodo;
+}
+
+
+//Función para insertar nodos ordenados de menor a mayor.
+void insertar_ordenado(unique_nodo& cabeza, nodo*& cola) {
+  nodo* actual = cabeza.get();
+  //Se crea el nuevo nodo.
+  unique_nodo nuevo = crear_nodo();
+  
+  //Validar que la lista no esté vacía.
+  if (!cabeza) {
+    std::cout << "La lista está vacía. Insertando primer nodo de la lista...\n"; //Añadir un retraso con chrono.
+    cabeza = std::move(nuevo);
+    cola = cabeza.get();
+
+    return;
+  }
+  
+  //Insertar al inicio.
+  if (nuevo->valor <= cabeza->valor) {
+    nuevo->siguiente = std::move(cabeza);
+    nuevo->siguiente->anterior = nuevo.get();
+    cabeza = std::move(nuevo);
+
+    return;
+  }
+
+  //Insertar al final.
+  if (nuevo->valor > cola->valor) {
+    nuevo->anterior = cola;
+    cola->siguiente = std::move(nuevo);
+    cola = cola->siguiente.get();
+
+    return;
+  }
+
+  //Insertar en el medio.
+  //Se busca la posición correcta. 'Actual' siempre maneja los nodos que van despues de él.
+  while (actual->siguiente && actual->siguiente->valor < nuevo->valor) {
+    actual = actual->siguiente.get();
+  }
+
+  //Establecer conexiones.
+  nuevo->siguiente = std::move(actual->siguiente);
+  nuevo->anterior = actual;
+  actual->siguiente = std::move(nuevo);
+  actual->siguiente->anterior = nuevo.get();
+}
+
+
+void mostrar_lista(const unique_nodo& cabeza) {
+  auto actual = cabeza.get();
+
+  //Validar que la lista no esté vacía.
+  if (!cabeza) {
+    std::cout << "La lista está vacía.";
+    return;
+  }
+
+  //REcorrer la lista.
+  while (actual) {
+    std::cout << actual->valor << " ";
+    actual = actual->siguiente.get();
+  }
+  std::cout << "\n";
+}
+
+//Comentario Temporal: DEben eliminarse los nodos repetidos pero si no hay ningún nodo repetido, no se elimina nada.
+//La lista está ordenada, basta un solo bucle.
+void eliminar_repetidos(unique_nodo& cabeza) {
+  auto actual = cabeza.get();
+
+  //Bucle que recorre toda la lista.
+  while (actual) {
+    if (actual->siguiente == nullptr) {
+      //La lista está vacía o llegó al final de la lista.
+      return;
+    }
+
+    if (actual->valor == actual->siguiente->valor) {
+      //En caso que el siguiente nodo sea el último.
+      if (actual->siguiente->siguiente == nullptr) {
+        actual->siguiente = nullptr;
+        return;
+      }
+      actual->siguiente->siguiente->anterior = actual;
+      actual->siguiente = std::move(actual->siguiente->siguiente);
+    }
+    else {
+      //Se avanza al siguiente nodo.
+      actual = actual->siguiente.get();
+    }
+  }
+}

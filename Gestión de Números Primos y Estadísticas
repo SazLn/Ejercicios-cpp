@@ -1,0 +1,91 @@
+#include <iostream>
+#include <array>
+#include <cmath>
+#include <thread>
+#include <chrono>
+#include <climits>
+
+using namespace std;
+
+//Ejercicio: Gestión de Números Primos y Estadísticas
+
+//Función para mostrar el arreglo.
+void imprimir_arreglo(const array<int, 5>& arreglo) {
+    cout << "El arreglo es: ";
+    for (const auto& elemento : arreglo) {
+        cout << elemento << " ";
+    }
+    cout << endl;
+}
+
+//Función que calcula si un número es primo. 1 no es primo y los negativos no tienen primos.
+bool es_primo(int n) {
+    if (n <= 1) {
+        return false; //Si retorna false, el número no es primo.
+    }
+
+    for (int i = 2; i <= sqrt(n); i++) { //para calcular si un número es primo se saca el residuo de los divisores(desde 2) de dicho número hasta la raíz del mismo.
+        if (n % i == 0) {
+            return false;
+        }
+    }
+    /* cout << n << " es primo." << endl; */
+
+    return true;
+}
+
+//Función que indica cuantos nuneros primos hay en el arreglo.
+int contar_primos(const array<int, 5>& arreglo, int n) {
+    int cantidad_primos = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (es_primo(arreglo[i]) == true) {
+            cantidad_primos++;
+        }
+    }
+
+    cout << "Hay " << cantidad_primos <<" números primos." << endl;
+
+    return cantidad_primos;
+}
+
+//Función para calcular el número menor, mayor y promedio.
+void calcular_estadisticas(const array<int, 5>& arreglo, int n, int& max, int& min, double& promedio) {
+    int suma = 0;
+
+    //bucle que calcula la suma para el promedio, mayor y menor.
+    for (int i = 0; i < n; i++) {
+        if (max < arreglo[i]) {max = arreglo[i];} //En este caso se puede todo comprimir en un solo bucle.
+        if (min > arreglo[i]) {min = arreglo[i];}
+        suma += arreglo[i];
+    }
+    promedio = static_cast<double>(suma) / n; //Se convierte a double el resultado de la división.
+    cout << "El número mayor es: " << max << endl;
+    cout << "El número menor es: " << min << endl;
+    cout << "El promedio de los números es " << promedio << "." << endl;
+}
+
+int main() {
+    const int N = 5;
+    int mayor = 0, menor = INT_MAX;
+    double promedio = 0;
+
+    cout << "-------------Gestión de Números Primos y Estadísticas-------------" << endl;
+    
+    array<int, N> numeros;
+
+    for (int i = 0; i < N; i++) {
+        cout << "Ingrese un número entero positivo: "; cin >> numeros[i];
+    }
+
+    imprimir_arreglo(numeros);
+
+    contar_primos(numeros, N);
+
+    cout << "Calculando estadísticas, espere un momento..." << endl;
+    this_thread::sleep_for(chrono::seconds(2)); //Para hacer que se demore 2 seg antes de mostrar las estadíscticas.
+
+    calcular_estadisticas(numeros, N, mayor, menor, promedio);
+
+    return 0;
+}

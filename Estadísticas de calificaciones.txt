@@ -1,0 +1,88 @@
+#include <iostream>
+#include <array>
+using namespace std;
+
+//Estadísticas de calificaciones
+
+//Función que ingresa las calificaciones al vector. Recibe por parámetro un vector y su tamaño.
+void ingresar_calificaciones(float vector_calificaciones[], int tam) {
+    int num_estudiante = 0;
+
+    cout << "Ingrese la calificación de los estudiantes. (0-100)";
+    for (int i = 0; i < tam; i++) {
+        cout << endl << "Estudiante " << ++num_estudiante << ": ";
+        cin >> vector_calificaciones[i];
+    }
+    
+}
+
+//Función que calcula el promedio de las notas. Recibe por parámetro el mismo vector y su tamaño.
+void promediar_calificaciones (float vector[], int tam) {
+    float promedio = 0, suma = 0;
+
+    for (int i = 0; i < tam; i++) {
+        suma += vector[i];
+    }
+
+    promedio = suma/tam;
+
+    cout << "El promedio de calificaciones es: " << promedio;
+}
+
+//Función que calcula la cantidad de estudiantes aprobados y reprobados, recibe el mismo vector y su tamaño como parámetros.
+void calcular_aprobados_y_reprobados(float vector[], int tam) {
+    int cantidad = 0;
+
+    for (int i = 0; i < tam; i++) {
+        if (vector[i] >= 60) {
+            cantidad++;
+        }
+    }
+
+    cout << endl << "La cantidad de estudiantes aprobados es de " << cantidad;
+
+    cantidad = 0;
+    for (int i = 0; i < tam; i++) {
+        if (vector[i] < 60) {
+            cout << endl << "Estudiante " << i << " reprobado.";
+        }
+    }
+}
+
+//Función que calcula la calificación más alta y más baja. Recibe por parámetro el mismo vector y su tamaño.
+void notaMax_Min(float vector[], int tam) {
+    float nota_max = 0, nota_min = 100;
+
+    //Bucle para la nota más alta.
+    for (int i = 0; i < tam; i++) {
+        if (nota_max < vector[i]) {
+            nota_max = vector[i];
+        }
+    }
+    cout << "La nota más alta es " << nota_max << endl;
+
+    //Bucle para la nota más baja.
+    for (int i = 0; i < tam; i++) {
+        if (nota_min > vector[i]) {
+            nota_min = vector[i];
+        }
+    }
+    cout << "La nota más baja es " << nota_min;
+}
+
+int main() {
+    int tam;
+    cout << "Ingrese la cantidad de estudiantes (máximo 100)." << endl;
+    cin >> tam;
+
+    float vector_calificaciones[tam];
+
+    ingresar_calificaciones(vector_calificaciones, tam);
+    promediar_calificaciones(vector_calificaciones, tam);
+    calcular_aprobados_y_reprobados(vector_calificaciones, tam);
+    notaMax_Min(vector_calificaciones, tam);
+    
+    return 0;
+}
+
+//Ejercicio que te recomiendo resolver carvrga: https://www.blackbox.ai/share/1a0abd9e-0ce1-436e-9303-610c658e7313

@@ -1,0 +1,91 @@
+#include <iostream>
+#include <array>
+#include <algorithm>
+#include <thread>
+#include <chrono>
+using namespace std;
+
+
+//Ejercicio: Rotación de Matriz
+
+const int tamaño = 2;
+
+//Función para ingresar los datos de la matriz. Recibe una matriz por parámetro.
+void ingresar_matriz(array<array<int, tamaño>, tamaño>& matrix) {
+    cout << "-------------Rotación de Matriz 2x2-------------" << endl;
+    cout << "por favor, ingrese los datos a la matriz. (Solo enteros)" << endl;
+
+    for (int i = 0; i < tamaño; i++) {
+        for (int j = 0; j < tamaño; j++) {
+            cout << "Elemento " << "[" << i << "][" << j << "]: ";
+            cin >> matrix[i][j];
+        }
+    }
+
+}
+
+//Función para trasponer la matriz.
+void trasponer_matriz(array<array<int, tamaño>, tamaño>& matrix) {
+    /*
+      Para trasponer una matriz sin usar un vector auxiliar se intercambian los elementos
+      de la siguiente manera:
+      Elemento[i][j] se intercambia por Elemento[j][i] siempre y cuando i < j. 
+    */
+    
+    for (int i = 0; i < tamaño; i++) {
+        for (int j = 0; j < tamaño; j++) {
+            if (i < j) {
+                swap(matrix[i][j], matrix[j][i]);
+            }
+        }
+    }
+
+
+    /* 
+        Bucle para invertir los elementos ya que la matriz ahora es:
+        1 3
+        2 4
+        y necesitamos que sea:
+        3 1
+        4 2
+        Para unvertir cada fila usaré la función swap();
+    */
+
+    for (int i = 0; i < tamaño; i++) {
+        for (int j = 0; j < tamaño / 2; ++j) { //El tamaño se divide entre 2 (Toma la parte entera de la división) para evitar que se recorra toda la fila, en ese caso desharía los swaps o armaría un mierdero.
+
+            swap(matrix[i][j], matrix[i][tamaño - 1 - j]); //[tamaño - 1] da el índice del último elemento de la fila (por ejemplo, en una fila de 5 elementos, el último índice es 4).
+        }
+    }
+
+    cout << endl << "Matriz traspuesta:" << endl;
+    for (const auto& fila : matrix) {
+        for (const auto& elemento : fila) {
+            cout << elemento << " ";
+        }
+        cout << endl;
+    }    
+
+}
+
+int main() {
+    array<array<int, tamaño>, tamaño> matriz;
+
+    ingresar_matriz(matriz);
+
+    cout << endl << "Matriz ingresada:" << endl;
+
+    for (const auto& fila : matriz) {
+        for (const auto& elemento : fila) {
+            cout << elemento << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl << "Trasponiendo matriz, espere un momento..." << endl;
+    this_thread::sleep_for(chrono::seconds(2));
+
+    trasponer_matriz(matriz);
+
+    return 0;
+}

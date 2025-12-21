@@ -1,0 +1,108 @@
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+//Ejercicio: "Manipulación de Arreglos Estáticos en C++ con std::array: Operaciones Básicas sobre Números Enteros"
+
+
+//Prototipos de función.
+void imprimirArreglo(const std::array<int, 10>& arr);
+
+int sumarElementos(const std::array<int, 10>& arr);
+
+int maximoElemento(const std::array<int, 10>& arr);
+
+double promedioElementos(const std::array<int, 10>& arr);
+
+int contarElementosPositivos(const std::array<int, 10>& arr);
+
+int main() {
+    std::array<int, 10>numeros;
+
+    std::cout << "------------------------Manipulación de Arreglos Estáticos------------------------";
+
+    std::cout << endl << "Por favor ingrese 10 números enteros (Positivos o negativos)." << endl;
+
+    for (int i = 0; i < 10; i++) {
+        std::cout << "Ingrese un número: "; std::cin >> numeros[i];
+
+        while (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Entrada inválida. Intente de nuevo: ";
+            std::cin >> numeros[i];
+        }
+    }
+
+    imprimirArreglo(numeros);
+    std::cout << "\nLa suma de los elementos del arreglo es: " <<sumarElementos(numeros);
+
+    std::cout << endl <<"El máximo elemento del arreglo es: " << maximoElemento(numeros);
+
+    std::cout << endl << "El promedio de los elementos del arreglo es: " << promedioElementos(numeros);
+
+    std::cout << endl << "Hay " << contarElementosPositivos(numeros) << " números positivos en el arreglo.";
+
+    return 0;
+}
+
+//Función para imprimir el arreglo por pantalla.
+void imprimirArreglo(const std::array<int, 10>& arr) {
+    std::cout << endl << "El arreglo ingresado es: ";
+
+    for (const int& elemento : arr) {
+        cout << elemento << "  ";
+    }
+}
+
+//Función que suma los elementos del vector.
+int sumarElementos(const std::array<int, 10>& arr) {
+    int suma = 0;
+
+    for (const int& elemento : arr) {
+        suma += elemento;
+    }
+
+    return suma;
+}
+
+//Función para calcular el elemento máximo.
+int maximoElemento(const std::array<int, 10>& arr) {
+    int maximo = 0;
+
+    for (int i = 0; i < 10; i++) {
+        if (maximo < arr[i]) {
+            maximo = arr[i];
+        }
+    }
+
+    return maximo;
+}
+
+//Función para calcular el primedio de los elementos.
+double promedioElementos(const std::array<int, 10>& arr) {
+    double promedio = 0;
+    double suma = 0;
+
+    for (const int& elemento : arr) {
+        suma += elemento;
+    }
+
+    promedio = suma / arr.size();
+
+    return promedio;
+}
+
+//Función para contar elementos positivos.
+int contarElementosPositivos(const std::array<int, 10>& arr) {
+    int suma_positivos = 0;
+
+    for (const int& elemento : arr) {
+        if (elemento > 0) {
+            suma_positivos++;
+        }
+    }
+
+    return suma_positivos;
+}

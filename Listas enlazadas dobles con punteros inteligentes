@@ -1,0 +1,139 @@
+#include <iostream>
+#include <memory>
+
+/* ===== ESTRUCTURA DEL NODO ===== */
+struct Nodo {
+  int dato;
+  std::unique_ptr<Nodo> sig; // siguiente
+  Nodo *ant;                 // anterior
+};
+
+/* ===== CREAR NODO ===== */
+std::unique_ptr<Nodo> crearNodo(int valor) {
+  auto nuevo = std::make_unique<Nodo>();
+  nuevo->dato = valor;
+  nuevo->sig = nullptr;
+  nuevo->ant = nullptr;
+  return nuevo;
+}
+
+/* ===== INSERTAR ORDENADO (CON COLA) ===== */
+void insertarOrdenado(std::unique_ptr<Nodo> &cabeza, Nodo *&cola, int valor) {
+  auto nuevo = crearNodo(valor);
+
+  // Lista vacía
+  if (!cabeza) {
+    cabeza = std::move(nuevo);
+    cola = cabeza.get();
+    return;
+  }
+
+  // Insertar al inicio
+  if (valor < cabeza->dato) {
+    nuevo->sig = std::move(cabeza);
+    
+    //Una vez que usamos el std::move(cabeza), 'cabeza' es eliminada (nullptr) por eso se usa nuevo->siguiente->anterior.
+    nuevo->sig->ant = nuevo.get();
+    cabeza = std::move(nuevo);
+    return;
+  }
+
+  // Insertar al final
+  if (valor >= cola->dato) {
+    nuevo->ant = cola;
+    cola->sig = std::move(nuevo);
+    cola = cola->sig.get();
+    return;
+  }
+
+  // Insertar en medio
+  Nodo *actual = cabeza.get();
+  while (actual->sig && actual->sig->dato < valor) {
+    actual = actual->sig.get();
+  }
+
+  nuevo->sig = std::move(actual->sig);
+  nuevo->sig->ant = nuevo.get();
+  nuevo->ant = actual;
+  actual->sig = std::move(nuevo);
+}
+
+/* ===== ELIMINAR NODO POR VALOR ===== */
+bool eliminar(std::unique_ptr<Nodo> &cabeza, Nodo *&cola, int valor) {
+
+  // Lista vacía
+  if (!cabeza)
+    return false;
+
+  // Eliminar el primero
+  if (cabeza->dato == valor) {
+    cabeza = std::move(cabeza->sig);
+
+    if (cabeza)
+      cabeza->ant = nullptr;
+    else
+      cola = nullptr; // lista quedó vacía
+
+    return true;
+  }
+
+  //Puntero normal para recorrer la lista.
+  Nodo *actual = cabeza.get();
+
+  // Buscar nodo
+  while (actual->sig && actual->sig->dato != valor) {
+    actual = actual->sig.get();
+  }
+
+  // si actual->siguiente == nullptr, significa que el valor no se encuentra en la lista.
+  if (!actual->sig) return false;
+
+  // Una vez que se usa el std::move() se elimina el nodo. El puntero 'nodoEliminar' se usa para reconectar los enlaces.
+  std::unique_ptr<Nodo> nodoEliminar = std::move(actual->sig); //Una vez que el programa salga de esta función, el puntero se elimina.
+
+  // Reconectar enlaces
+  actual->sig = std::move(nodoEliminar->sig);
+
+  //Si actual no es el último nodo.
+  if (actual->sig) {
+    actual->sig->ant = actual; // caso medio
+  } else {
+    //Si actual es el último nodo.
+    cola = actual; // caso final
+  }
+
+  return true;
+}
+
+/* ===== MOSTRAR LISTA ===== */
+void mostrar(Nodo *cabeza) {
+  while (cabeza) {
+    std::cout << cabeza->dato << " <-> ";
+    cabeza = cabeza->sig.get();
+  }
+  std::cout << "NULL\n";
+}
+
+/* ===== MAIN ===== */
+int main() {
+  std::unique_ptr<Nodo> lista = nullptr;
+  Nodo *cola = nullptr;
+
+  insertarOrdenado(lista, cola, 10);
+  insertarOrdenado(lista, cola, 3);
+  insertarOrdenado(lista, cola, 7);
+  insertarOrdenado(lista, cola, 1);
+  insertarOrdenado(lista, cola, 15);
+  insertarOrdenado(lista, cola, 20);
+
+  mostrar(lista.get());
+
+  eliminar(lista, cola, 1);  // inicio
+  eliminar(lista, cola, 20); // final
+  eliminar(lista, cola, 7);  // medio
+
+  mostrar(lista.get());
+
+  return 0;
+}
+

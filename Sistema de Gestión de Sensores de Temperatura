@@ -1,0 +1,185 @@
+#include <iostream>
+#include <array>
+#include <random>
+#include <iomanip>
+#include <thread>
+#include <chrono>
+
+using namespace std;
+
+
+//---------------Sistema de Gestión de Sensores de Temperatura---------------//
+
+const int FILAS = 3, COLUMNAS = 4; //variables globales para la matriz std::array.
+
+
+//---------------------
+//    Estructuras
+//---------------------
+struct SensorData {
+    //Estructura para los datos del sensor
+    int id;
+    double temperaturaCelsius;
+    bool estaActivo;
+};
+
+
+//----------------------------
+//    Prototipos de Función
+//----------------------------
+void inicializarSensores(std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores, std::mt19937& gen);
+void mostrarEstadoSensores(const std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores);
+void buscarSensorPorID(const std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores);
+
+//-----------
+//    Main
+//-----------
+int main() {
+    std::random_device rand; //Semilla para los numeros aleatorios.
+    std::mt19937 generador(rand()); //Generador de números aleatorios
+
+    std::array<std::array<SensorData, COLUMNAS>, FILAS> redSensores;
+    int opcion = 0; char opcion_salir = ' '; bool sensoresInicializados = false;
+
+    /* inicializarSensores(redSensores, generador);
+    mostrarEstadoSensores(redSensores);
+    buscarSensorPorID(redSensores); */
+
+    std::cout << "=====================================================================\n";
+    std::cout << "          SISTEMA DE GESTIÓN DE SENSORES DE TEMPERATURA\n";
+    std::cout << "=====================================================================\n\n";
+
+    do {
+        std::cout << "Seleccione una opción del 1 al 4.\n" << 
+                     "(1) Inicializar Sensores (Obligatorio si es la primera vez que se ejecuta el programa)\n" <<
+                     "(2) Mostrar Estado de Todos los Sensores.\n" <<
+                     "(3) Buscar Sensor por ID.\n" <<
+                     "(4) Salir.\n";
+        std::cout << "Opción seleccionada: "; std::cin >> opcion;
+        while (cin.fail()) {
+            cin.clear();
+            cin.ignore(100, '\n');
+            std::cout << "Opción inválida, ingrese nuevamente:"; std::cin >> opcion;
+        }
+        std::cout << "\n\n";
+        
+        switch (opcion) {
+            case 1:
+                if (!sensoresInicializados){
+                    std::cout << "Inicializando sensores. Espere un momento...\n";
+                    this_thread::sleep_for(chrono::seconds(2)); //Para agregar un retraso de 2 segundos y simular que se inicializan progresivamente.
+                    inicializarSensores(redSensores, generador);
+                    std::cout << "✔ Sensores inicializados exitosamente.\n\n\n\n";
+                
+                } else {
+                    std::cout <<"⚠ Los sensores ya han sido inicializados.\n\n";
+                }
+                sensoresInicializados = true;
+            break;
+
+            case 2:
+                if (sensoresInicializados) {
+                    std::cout << "Recopilando datos. Espere un momento...\n\n";
+                    this_thread::sleep_for(chrono::seconds(2));
+                    mostrarEstadoSensores(redSensores);
+                    std::cout << "\n\n";
+
+                } else {
+                    std::cout << "⚠ Por favor, inicialice los sensores (Opción 1) antes de continuar.\n\n";
+                }
+                
+            break;
+
+            case 3:
+            if (sensoresInicializados) {
+                buscarSensorPorID(redSensores);
+            
+            } else {
+                std::cout << "⚠ Por favor, inicialice los sensores (Opción 1) antes de continuar.\n\n\n\n";
+            }
+            break;
+
+            case 4:
+                std::cout << "¿Está seguro que desea salir? (s/n): ";
+                std::cin >> opcion_salir;
+                std::cin.ignore(100, '\n');
+                opcion_salir = std::tolower(opcion_salir); // convierte a minúsculas para simplificar
+            break;
+        }
+    } while (opcion_salir != 's');
+
+    std::cout << "Gracias por usar el sistema. ¡Hasta pronto!\n";
+
+    return 0;
+}
+
+
+//----------------------------
+//    Funciones
+//----------------------------
+
+//Función para inicializar cada sensor
+void inicializarSensores(std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores, std::mt19937& gen) {
+    std::uniform_real_distribution<> distribucion(15.0, 31.0); //Distribución para definir el tipo de números aleatorios y el rango
+    std::discrete_distribution<> distribucion_estaActivo({20, 80}); //20% de probabilidades para 'false'(0) y 80% para 'true'(1)
+
+    int ID = 0;
+    for (size_t i = 0; i < redSensores.size(); i++) {
+        for (size_t j = 0; j < redSensores[i].size(); j++) {
+            //El id del primer sensor es 0, y sigue la cuenta en +1 para cada sensor.
+            redSensores[i][j].id = ID++;
+            redSensores[i][j].temperaturaCelsius = distribucion(gen);
+            redSensores[i][j].estaActivo = distribucion_estaActivo(gen);
+        }
+    }
+}
+
+//Función para mostrar los datos de cada sensor.
+void mostrarEstadoSensores(const std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores) {
+    // Encabezado con columnas alineadas
+    std::cout << std::left
+              << std::setw(5)  << "ID"
+              << std::setw(18) << "Temperatura C°"
+              << std::setw(10) << "Estado" << "\n";
+
+    std::cout << std::string(33, '-') << "\n"; // Línea divisoria
+    
+    for (const auto& fila : redSensores) {
+        for (const auto& elemento : fila) {
+             std::cout << std::left
+                      << std::setw(10)  << elemento.id
+                      << std::setw(12) << std::fixed << std::setprecision(2) << elemento.temperaturaCelsius
+                      << std::setw(10) << std::boolalpha << (elemento.estaActivo ? "Activo" : "No Activo") << "\n";
+        }
+    }
+}
+
+//Función para buscar sensores por id
+void buscarSensorPorID(const std::array<std::array<SensorData, COLUMNAS>, FILAS>& redSensores) {
+    //Solicita al usuario la ID y luego itera sobre cada id de los sensores en la matriz.
+    int ID = 0;
+    bool encontrado = false;
+    std::cout << "Ingrese el ID del sensor:"; std:cin >> ID;
+    std::cout << "Buscando sensor...\n";
+    this_thread::sleep_for(chrono::seconds(2));
+
+    for (size_t i = 0; i < redSensores.size(); i++) {
+        for (size_t j = 0; j <  redSensores[i].size(); j++) {
+            if (ID == redSensores[i][j].id) {
+                encontrado = true;
+                std::cout << "✔ Sensor encontrado.\n";
+                std::cout << "ID: " << redSensores[i][j].id << endl 
+                          << "Temperatura C°: " << redSensores[i][j].temperaturaCelsius << endl 
+                          << "Estado: " << (redSensores[i][j].estaActivo ? "Activo" : "No activo"); 
+                std::cout << "\n\n";
+                break;
+
+            } 
+            
+        }
+    }
+    if (!encontrado) {
+        std::cout << "Sensor no encontrado.\n\n";
+    }
+
+}

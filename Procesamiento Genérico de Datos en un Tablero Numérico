@@ -1,0 +1,169 @@
+#include <iostream>
+#include <array>
+#include <limits>
+#include <thread>
+#include <chrono>
+#include <algorithm>
+
+using namespace std;
+
+//-----------------------------------------------------------------------------
+// PROTOTIPOS DE FUNCIONES - VECTORES
+//-----------------------------------------------------------------------------
+
+template <typename T, size_t N>
+double promedio(const std::array<T, N>& arreglo);
+
+template <typename T, size_t N>
+T valor_maximo(const std::array<T, N>& arr);
+
+template <typename T, size_t N>
+std::array<double, N> normalizar_arreglo(const std::array<T, N>& arr);
+
+//-----------------------------------------------------------------------------
+// PROTOTIPOS DE FUNCIONES - MATRICES
+//-----------------------------------------------------------------------------
+
+template <typename T, size_t ROWS, size_t COLS>
+T suma_elementos(const std::array<std::array<T, COLS>, ROWS>& matriz);
+
+template <typename T, size_t ROWS, size_t COLS>
+std::array<double, ROWS> calcular_vector_promedio(const std::array<std::array<T, COLS>, ROWS>& matriz);
+
+template <typename T, size_t ROWS, size_t COLS>
+void trasponer_matriz(const std::array<std::array<T, COLS>, ROWS>& matriz);
+
+//-----------------------------------------------------------------------------
+// MAIN
+//-----------------------------------------------------------------------------
+
+int main() {
+    const size_t N = 5;
+    const size_t filas = 2, columnas = 3;
+
+    std::array<int, N> vector;
+    std::array<std::array<int, columnas>, filas> matriz;
+
+    cout << "------------ Procesamiento Genérico de Datos en un Tablero Numérico ------------\n";
+    cout << "Ingrese los datos del vector:\n";
+
+    for (size_t i = 0; i < N; ++i) {
+        cout << "Dato " << i + 1 << ": ";
+        cin >> vector[i];
+    }
+
+    cout << "\nPromedio del vector: " << promedio(vector) << "\n";
+    cout << "Valor máximo del vector: " << valor_maximo(vector) << "\n";
+
+    auto arreglo_normalizado = normalizar_arreglo(vector);
+    cout << "Vector normalizado (rango [0, 1]): ";
+    for (const auto& val : arreglo_normalizado)
+        cout << val << "  ";
+    cout << "\n\n";
+
+    cout << "Procesamiento del vector finalizado.\n";
+    cout << "Iniciando procesamiento de matriz...\n";
+    this_thread::sleep_for(chrono::seconds(2));
+
+    cout << "\nIngrese los datos de la matriz (" << filas << "x" << columnas << "):\n";
+    for (size_t i = 0, k = 1; i < filas; ++i)
+        for (size_t j = 0; j < columnas; ++j)
+            cout << "Dato " << k++ << ": ", cin >> matriz[i][j];
+
+    cout << "\nSuma de los elementos de la matriz: " << suma_elementos(matriz) << "\n";
+
+    auto promedios = calcular_vector_promedio(matriz);
+    cout << "Promedio por fila:\n";
+    for (size_t i = 0; i < filas; ++i)
+        cout << "Fila " << i << ": " << promedios[i] << "\n";
+
+    cout << "\nMatriz traspuesta:\n";
+    trasponer_matriz(matriz);
+
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+// FUNCIONES DE VECTORES
+//-----------------------------------------------------------------------------
+
+template <typename T, size_t N>
+double promedio(const std::array<T, N>& arreglo) {
+    double suma = 0;
+    for (const auto& val : arreglo)
+        suma += val;
+    return suma / N;
+}
+
+template <typename T, size_t N>
+T valor_maximo(const std::array<T, N>& arr) {
+    T max = std::numeric_limits<T>::lowest();
+    for (const auto& val : arr)
+        if (val > max) max = val;
+    return max;
+}
+
+template <typename T, size_t N>
+std::array<double, N> normalizar_arreglo(const std::array<T, N>& arr) {
+    std::array<double, N> resultado;
+    T min = std::numeric_limits<T>::max();
+    T max = std::numeric_limits<T>::lowest();
+
+    for (const auto& val : arr) {
+        if (val < min) min = val;
+        if (val > max) max = val;
+    }
+
+    if (max == min) {
+        resultado.fill(0.0); // evitar división por cero
+        return resultado;
+    }
+
+    for (size_t i = 0; i < N; ++i)
+        resultado[i] = static_cast<double>(arr[i] - min) / (max - min);
+
+    return resultado;
+}
+
+//-----------------------------------------------------------------------------
+// FUNCIONES DE MATRICES
+//-----------------------------------------------------------------------------
+
+template <typename T, size_t ROWS, size_t COLS>
+T suma_elementos(const std::array<std::array<T, COLS>, ROWS>& matriz) {
+    T suma = 0;
+    for (const auto& fila : matriz)
+        for (const auto& val : fila)
+            suma += val;
+    return suma;
+}
+
+template <typename T, size_t ROWS, size_t COLS>
+std::array<double, ROWS> calcular_vector_promedio(const std::array<std::array<T, COLS>, ROWS>& matriz) {
+    std::array<double, ROWS> promedios;
+
+    for (size_t i = 0; i < ROWS; ++i) {
+        double suma = 0;
+        for (size_t j = 0; j < COLS; ++j)
+            suma += matriz[i][j];
+        promedios[i] = suma / COLS;
+    }
+
+    return promedios;
+}
+
+template <typename T, size_t ROWS, size_t COLS>
+void trasponer_matriz(const std::array<std::array<T, COLS>, ROWS>& matriz) {
+    std::array<std::array<T, ROWS>, COLS> transpuesta;
+
+    for (size_t i = 0; i < ROWS; ++i)
+        for (size_t j = 0; j < COLS; ++j)
+            transpuesta[j][i] = matriz[i][j];
+
+    for (const auto& fila : transpuesta) {
+        for (const auto& val : fila)
+            cout << val << " ";
+        cout << "\n";
+    }
+}
+

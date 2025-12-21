@@ -1,0 +1,75 @@
+#include <iostream>
+#include <array>
+using namespace std;
+
+
+//Ejercicio: Suma de Diagonales de una Matriz
+
+
+const int filas = 2, columnas = 2; //Variables globales para las dimensiones de la matriz.
+
+
+//Función para pedir al usuario que ingrese los valores de la matriz cuadrada.
+//Recibe por parámetros una matriz estática.
+void Rellenar_matriz(array<array<int, columnas>, filas>& matrix) {
+    cout << "----------Matriz Cuadrada 2x2----------" << endl;
+    cout << "Por favor ingrese los datos a la matriz (Solo números enteros)" << endl;
+    
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            cout << "Elemento " << "[" << i << "][" << j << "]: ";
+            cin >> matrix[i][j];
+        }
+    }
+}
+
+/*Función que Calcula la suma de las diagonales de la matriz. Recibe por parámetro la misma matriz.*/
+void calcular_diagonales(array<array<int, columnas>, filas>& matrix) {
+    int suma_principal = 0, suma_secundaria = 0;
+    
+    //Bucle para calcular la diagonal principal
+    for (int i = 0; i < matrix.size(); i++) {
+        suma_principal += matrix[i][i];
+    }
+
+    cout << "La suma de la diagonal principal es: " << suma_principal << endl;
+
+
+    //Bucle para calcular la diagonal secundaria.
+    for (int i = columnas - 1; i >= 0; i--) {
+        suma_secundaria += matrix[i][i];
+    }
+
+    cout << "La suma de la diagonal secundaria es: " << suma_secundaria << endl;
+
+    if (suma_principal < suma_secundaria) {
+        cout << "La suma de la diagonal principal es mayor.";
+
+    } else if (suma_secundaria < suma_principal){
+        cout << "La suma de la diagonal secundaria es mayor.";
+    
+    } else {
+        cout << "La 2 sumas son iguales." << endl;
+    }
+    
+}
+
+
+int main() {
+    array<array<int, columnas>, filas> matriz;
+
+    Rellenar_matriz(matriz);
+
+    cout << "Matriz ingresada:" << endl;
+
+    for (const auto& fila : matriz) {
+        for (const auto& elemento : fila) {
+            cout << elemento << " ";
+        }
+        cout << endl;
+    }
+
+    calcular_diagonales(matriz);
+
+    return 0;
+}

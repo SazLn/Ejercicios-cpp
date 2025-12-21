@@ -1,0 +1,146 @@
+#include <iostream>
+#include <memory>
+#include <cctype>
+
+//----------------------------------------------------//
+//  Lista enlazada simple con punteros inteligentes   //
+//----------------------------------------------------//
+
+
+//Estructura para los nodos.
+struct nodo {
+  int numero;
+  std::unique_ptr<nodo> siguiente;
+};
+
+//Para evitar escribir tanto texto.
+using unique = std::unique_ptr<nodo>;
+
+//-------------Prototipos de función-------------//
+void crear_nodo (unique& cabeza, nodo*& auxiliar);
+void mostrar_lista(const unique& cabeza);
+void eliminar_nodo(unique& cabeza, int posicion);
+
+
+int main() {
+  //Ejercicio, crear una lista enlazada simple con punteros inteligentes y mostrarla por pantalla.
+
+  //Cabeza de lista.
+  unique cabeza = nullptr;
+  //Nodo auxiliar. Obligatorio que sea puntero normal.
+  nodo* auxiliar = nullptr;
+
+  crear_nodo(cabeza, auxiliar);
+  
+  std::cout << "\n--- Lista Actual ---\n";
+  mostrar_lista(cabeza);
+
+  // Ejemplo de eliminación
+  int pos;
+  std::cout << "\nIngrese la posición del nodo que desea eliminar (0 indexado): ";
+  std::cin >> pos;
+
+  eliminar_nodo(cabeza, pos);
+
+  std::cout << "\n--- Lista después de eliminar ---\n";
+  mostrar_lista(cabeza);
+
+  return 0;
+}
+
+//-------------Funciones-------------//
+void crear_nodo (unique& cabeza, nodo*& auxiliar) {
+  //Opción para que el usuario decida si crear nodos.
+  char opcion;
+
+  std::cout << "¿Desea crear un nodo? (s/n): "; 
+  std::cin >> opcion;
+
+  //Un unsigned char es un char sin signo, es decir, los valores ASCII para los carácteres van de 0 a 255 unicamente no negativos.
+  while (static_cast<unsigned char>(::tolower(opcion)) == 's')  {
+    auto nuevo_nodo = std::make_unique<nodo>(); // Cada que se declarar un unique_ptr aquí, se crea un nuevo nodo.
+
+    std::cout << "\nIngrese el número del nodo: ";
+    std::cin >> nuevo_nodo->numero;
+
+    // Revisa si es el primer nodo.
+    if (cabeza == nullptr) {
+      cabeza = std::move(nuevo_nodo); // Se usa [std::move()] porque no se puede
+                                 // asignar directamente entre 2 o más unique_ptr
+
+      auxiliar = cabeza.get(); //[.get()] se usa para obtener un puntero normal
+                               //derivado de uno inteligente.
+    } else {
+      auxiliar->siguiente = std::move(nuevo_nodo); //[std::move()] se usa igualmente para asignar la
+                                                  //dirección de un unique_ptr a un puntero normal.
+      auxiliar = auxiliar->siguiente.get();
+    }
+
+    std::cout << "✅ Nodo añadido con éxito.\n\n";
+    std::cout << "➕ ¿Desea añadir otro nodo? (s/n): ";
+    std::cin >> opcion;
+  }
+}
+
+void mostrar_lista(const unique& cabeza) {
+  // Si la lista está vacía.
+  if (cabeza == nullptr) {
+    std::cout << "La lista está vacía.\n";
+    return;
+  }
+
+  //Se obtiene un puntero normal a partir del puntero inteligente.
+  const nodo *actual = cabeza.get();
+  int i = 0;
+
+  //Se recorre la lista para mostrar por pantalla.
+  while (actual != nullptr) { //La condición es para que 'actual' recorra la lista de inicio a fin.
+    std::cout << "[" << i << "]: " << actual->numero << " -> ";
+    actual = actual->siguiente.get();
+    i++;
+  }
+  std::cout << "NULL\n";
+}
+
+//Función para eliminar un nodo por posición.
+void eliminar_nodo(unique& cabeza, int posicion) {
+    // Si la lista está vacía
+    if (!cabeza) return;
+
+    // Caso 1: Eliminar la cabeza (posición 0)
+    if (posicion == 0) {
+      // Al mover cabeza->siguiente a cabeza, el antiguo nodo cabeza se destruye
+      // automáticamente
+      cabeza = std::move(cabeza->siguiente);
+      std::cout << "Nodo en posición 0 eliminado.\n";
+      return;
+    }
+
+    // Caso 2: Eliminar en cualquier otra posición
+    nodo* temp = cabeza.get();
+    // Recorremos hasta el nodo anterior a la posición deseada
+    for (int i = 0; i < posicion - 1; ++i) {
+
+      // Si llegamos al final antes de encontrar la posición (fuera de rango)
+      if (temp == nullptr || temp->siguiente == nullptr) {
+        //Si temp es nullptr, significa que la lista está vacía.
+        //Si temp->siguiente es nullptr, significa que llegamos al final de la lista.
+        std::cout << "Posición fuera de rango.\n";
+        return;
+      }
+      temp = temp->siguiente.get();
+    }
+
+    // Verificar si el nodo a eliminar existe
+    if (temp != nullptr && temp->siguiente != nullptr) {
+      // temp->siguiente es el puntero inteligente que posee el nodo a eliminar.
+      temp->siguiente = std::move(temp->siguiente->siguiente);
+      // Al asignar temp->siguiente->siguiente a temp->siguiente (usando move),
+      // el puntero original se sobrescribe y el nodo a eliminar se libera
+      // automáticamente.
+
+      std::cout << "Nodo en posición " << posicion << " eliminado.\n";
+    } else {
+      std::cout << "Posición fuera de rango.\n";
+    }
+}

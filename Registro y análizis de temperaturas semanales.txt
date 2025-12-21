@@ -1,0 +1,89 @@
+/*Ejercicio: Registro y análisis de temperaturas semanales
+Enunciado:
+Desarrolla un programa en C++ que:
+1.	Solicite al usuario ingresar las temperaturas diarias registradas durante 7 días de la semana.
+2.	Almacene estas temperaturas en un vector de 7 elementos.
+3.	Calcule y muestre:
+  o	La temperatura promedio de la semana.
+  o	La temperatura más alta y el día en que ocurrió (usar índice).
+  o	La temperatura más baja y el día en que ocurrió.
+4.	Muestra los días (índice) donde la temperatura estuvo por encima del promedio.
+
+*/
+
+
+
+/*-----------------------------------------------------------------------------------------------------------*/
+
+#include <iostream>
+#include <array>
+using namespace std;
+
+//Ejercicio: Registro y análisis de temperaturas semanales
+
+//Función que pide al usuario ingresar las temperaturas de los 7 días de la semana.
+//Recibe un vector como parámtro.
+void Registrar_Temperaturas(array<float, 7>& temperaturas) {
+    cout<<"Por favor ingrese la temperatura de cada día de la semana.\n";
+    int num_dia = 0;
+    for (auto& dia : temperaturas) {
+        cout<<"Día "<<++num_dia<<": "; cin>>dia;
+    }
+
+}
+
+//Función que calcula el promedio de temperatura de la semana.
+//Toma por parámetro el mismo vector.
+void calcular_promedio(array<float, 7> vector_promedio, float& valor_promedio) {
+    float suma = 0;
+
+    for (const auto& temperatura : vector_promedio) {
+        suma += temperatura;
+    }
+
+    valor_promedio= suma/vector_promedio.size();
+
+    cout<<"El promedio de temperatura de la semana es: "<<valor_promedio;
+}
+
+//Función que calcula la temperatura más alta y más baja de la semana.
+//Toma por parámetro el mismo vector.
+void calcular_altaYbaja(array<float, 7> vector_temperaturas, float& valor_promedio) {
+    float auxiliar = 0, dia = 0;
+
+    //Calcula la temperatura mayor.
+    for (int i = 0; i < 7; i++) {
+        if (auxiliar < vector_temperaturas[i]) {
+            auxiliar = vector_temperaturas[i];
+            dia = ++i;
+        }
+
+        if (auxiliar > valor_promedio) {
+            cout<<"\nla temperatura del día "<<dia<<" superó el promedio de la semana.";
+        }
+    }
+
+    cout << endl << "La temperatura más alta registrada es de " << auxiliar << " grados el día " << dia;
+
+    //Calcula la temperatura menor.
+    for (int i = 0; i < 7; i++) {
+        if (auxiliar > vector_temperaturas[i]) {
+            auxiliar = vector_temperaturas[i];
+            dia = ++i;
+        }
+    }
+
+    cout << endl << "La temperatura más baja registrada es de " << auxiliar << " grados el día " << dia;
+}
+
+
+int main() {
+    array<float, 7> temperaturas = {0};
+    float promedio = 0;
+
+    Registrar_Temperaturas(temperaturas);
+    calcular_promedio(temperaturas, promedio);
+    calcular_altaYbaja(temperaturas, promedio);
+    
+    return 0;
+}

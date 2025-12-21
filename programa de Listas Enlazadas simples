@@ -1,0 +1,146 @@
+#include <iostream>
+#include <cctype>
+#include <thread>
+#include <chrono>
+
+// Nodo para la lista enlazada simple
+struct Nodo {
+    int valor;
+    Nodo* siguiente;
+};
+
+//--------------------------------
+// Prototipos de función
+void agregarNodo(Nodo*& cabeza, Nodo*& nuevoNodo, Nodo*& auxiliar);
+void mostrarLista(Nodo*& cabeza);
+void eliminarValor(Nodo*& cabeza);
+
+int main () {
+    Nodo* cabeza = nullptr;
+    Nodo* nuevoNodo;
+    Nodo* auxiliar;
+    int opcion;
+
+    std::cout << "====================================================\n";
+    std::cout << "   🟢 Bienvenido al programa de Listas Enlazadas 🟢\n";
+    std::cout << "====================================================\n\n";
+    
+    do {
+        std::cout << "\n📌 ¿Qué desea hacer con la lista?\n";
+        std::cout << "-----------------------------------\n";
+        std::cout << "  (1) ➕ Agregar nodo\n";
+        std::cout << "  (2) 📋 Mostrar lista\n";
+        std::cout << "  (3) ❌ Eliminar valor\n";
+        std::cout << "  (4) 🚪 Salir\n";
+        std::cout << "-----------------------------------\n";
+        std::cout << "👉 Ingrese la opción: ";
+        std::cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                agregarNodo(cabeza, nuevoNodo, auxiliar);
+            break;
+
+            case 2: 
+                mostrarLista(cabeza);
+            break;
+
+            case 3:
+                eliminarValor(cabeza);
+            break;
+
+            case 4: 
+                std::cout << "\n⏳ Saliendo del programa...\n";
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                std::cout << "✅ Gracias por usar el programa. ¡Hasta pronto!\n\n";
+            break;
+
+            default:
+                std::cout << "⚠️  Opción inválida. Intente nuevamente.\n";
+            break;
+        }
+    } while (opcion != 4);
+
+    return 0;
+}
+
+//--------------------------------
+// Función para añadir nodos al final de la lista.
+void agregarNodo(Nodo*& cabeza, Nodo*& nuevoNodo, Nodo*& auxiliar) {
+    char respuesta;
+    
+    std::cout << "\n➕ ¿Desea añadir un nuevo nodo a la lista? (S/N): ";
+    std::cin >> respuesta;
+
+    while (std::toupper(respuesta) == 'S') {
+        nuevoNodo = new Nodo();
+
+        std::cout << "👉 Ingrese el valor del nodo: ";
+        std::cin >> nuevoNodo->valor;
+        nuevoNodo->siguiente = nullptr;
+
+        if (cabeza == nullptr) { 
+            cabeza = nuevoNodo;
+            auxiliar = nuevoNodo;
+        } else {
+            auxiliar->siguiente = nuevoNodo;
+            auxiliar = nuevoNodo;
+        }
+
+        std::cout << "✅ Nodo añadido con éxito.\n\n";
+        std::cout << "➕ ¿Desea añadir otro nodo? (S/N): ";
+        std::cin >> respuesta;
+    }
+}
+
+// Función para mostrar la lista.
+void mostrarLista(Nodo*& cabeza) {
+    Nodo* actual = cabeza;
+
+    std::cout << "\n📋 Contenido de la lista:\n";
+    std::cout << "-----------------------------\n";
+
+    if (actual == nullptr) {
+        std::cout << "⚠️  La lista está vacía.\n";
+        return;
+    }
+
+    while (actual != nullptr) {
+        std::cout << " [" << actual->valor << "] -> ";
+        actual = actual->siguiente;
+    }
+    std::cout << " nullptr\n";
+}
+
+// Función para eliminar un valor de la lista.
+void eliminarValor(Nodo*& cabeza) {
+    Nodo* actual = cabeza;
+    Nodo* anterior = nullptr;
+    int valor;
+
+    if (actual == nullptr) {
+        std::cout << "\n⚠️  No se puede eliminar: la lista está vacía.\n";
+        return;
+    } else {
+        std::cout << "\n❌ Ingrese el valor a eliminar: ";
+        std::cin >> valor;
+
+        while (actual != nullptr && actual->valor != valor) {
+            anterior = actual;
+            actual = actual->siguiente;
+        }
+
+        if (actual == nullptr) {
+            std::cout << "⚠️  El valor no se encuentra en la lista.\n";
+            return;
+        } else if (anterior != nullptr) {
+            anterior->siguiente = actual->siguiente;
+        } else {
+            cabeza = actual->siguiente;
+        }
+
+        delete actual;
+        std::cout << "✅ El valor ha sido eliminado de la lista.\n";
+    }
+}
+

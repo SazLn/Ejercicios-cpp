@@ -1,0 +1,150 @@
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+//---------------------------------
+//Estructuras para la egenda
+//---------------------------------
+struct Fecha {
+    int dia;
+    int mes;
+    int año;
+};
+
+struct Hora {
+    int horas;
+    int minutos;
+};
+
+struct Evento {
+    std::string nombre;
+    Fecha date;
+    Hora hour;
+};
+
+//---------------------------------
+//Prototipos de función
+//---------------------------------
+Evento crearEvento();
+void agregarEvento(std::array<Evento, 5>& agenda, int& numEventos);
+void mostrarEventos(const std::array<Evento, 5>& agenda, int numEventos);
+
+//---------------------------------
+//función main
+//---------------------------------
+int main() {
+    std::array<Evento, 5> agenda;
+    int numEventosActuales = 0, opción = 0; //contador para saber cuantos eventos están en la agenda.
+    char salir;
+
+    std::cout << "================== GESTIÓN DE EVENTOS ==================\n\n";
+    do {
+        //Menú para el usuario
+        std::cout << "¿Qué desea hacer?\n";
+        std::cout << "Seleccione una opción:\n";
+        std::cout << "  1. Agregar Evento\n";
+        std::cout << "  2. Mostrar Eventos\n";
+        std::cout << "  3. Salir\n";
+        std::cout << "Opción seleccionada: "; std::cin >> opción;
+
+        switch (opción) {
+            case 1: 
+                agregarEvento(agenda, numEventosActuales);
+            break;
+                
+            case 2: 
+                mostrarEventos(agenda, numEventosActuales);   
+            break;
+
+            case 3: 
+                std::cout << "\n¿Está seguro que desea salir? (s/n): ";
+                std::cin >> salir;
+                std::cin.ignore(100, '\n');
+                salir = std::tolower(salir); // convierte a minúsculas para simplificar
+            break;
+
+             default:
+                std::cout << "Opción no válida. Intente de nuevo.\n";
+        }
+    } while (salir != 's');
+    std::cout << "Gracias por usar la agenda de eventos. ¡Hasta pronto!\n";
+       
+    return 0;
+}
+
+//---------------------------------
+//Funciones
+//---------------------------------
+
+//Función para crear un evento y registrarlo.
+Evento crearEvento() {
+    Evento registrar_evento;
+    std::array<int, 5> validar_datos = {0};
+    std::array<std::string, 5> fechas = {"Día", "Mes", "Año", "Hora", "Minuto"};
+
+    std::cin.ignore(100, '\n');
+    std::cout << "\n>>> CREAR NUEVO EVENTO <<<\n";
+    std::cout << "Ingrese el nombre del evento: "; std::getline(std::cin, registrar_evento.nombre);
+
+    for (size_t i = 0; i < 5; i++) {
+        if (i == 0) { std::cout << "Día del evento entre 1 y 31.";
+        } else if (i == 1) { std::cout << "Mes del evento entre 1 y 12.";
+        } else if (i == 3) { std::cout << "Hora del evento entre 0 y 23.";
+        } else if (i == 4) { std::cout << "Minuto del evento entre 0 y 59.";}
+
+        std::cout << endl << fechas[i] << " del evento: ";
+        std::cin >> validar_datos[i];
+
+        while (cin.fail() || validar_datos[0] > 31 || validar_datos[1] > 12 || validar_datos[3] > 23 || validar_datos[4] > 59) {
+            std::cout << "Entrada inválida. Ingrese " << fechas[i] << " nuevamente: ";
+            std::cin >> validar_datos[i];
+
+            while (cin.fail()) {
+                cin.clear();
+                cin.ignore(100, '\n');
+
+                std::cout << "Entrada inválida. Ingrese " << fechas[i] << " nuevamente: ";
+                std::cin >> validar_datos[i];
+            }
+        }
+
+        std::cout << endl;
+        
+    }
+
+    registrar_evento.date.dia = validar_datos[0];
+    registrar_evento.date.mes = validar_datos[1];
+    registrar_evento.date.año = validar_datos[2];
+    registrar_evento.hour.horas = validar_datos[3];
+    registrar_evento.hour.minutos = validar_datos[4];
+
+    std::cout << "\nEvento registrado exitosamente.\n";
+
+    return registrar_evento;
+}
+
+//Función para agregar eventos a la agenda.
+void agregarEvento(std::array<Evento, 5>& agenda, int& numEventos) {
+    if (numEventos == 5) {
+        std::cout << "\n>>> La agenda está llena. No se pueden agregar más eventos.\n";
+    } else {
+        agenda[numEventos] =  crearEvento();
+        numEventos++;
+    }
+}
+
+//Función para mostrar los eventos agendados.
+void mostrarEventos(const std::array<Evento, 5>& agenda, int numEventos) {
+    if (numEventos == 0) {
+        std::cout << "\n>>> No hay eventos agendados.\n";
+    } else {
+        std::cout << "\n>>> EVENTOS AGENDADOS <<<\n";
+        for (size_t i = 0; i < numEventos; i++) {
+            std::cout << "Evento: " << agenda[i].nombre << endl;
+            std::cout << "Fecha: " << agenda[i].date.dia << "/" << agenda[i].date.mes << "/" << agenda[i].date.año << endl;
+            std::cout << "Hora: " << agenda[i].hour.horas << ":" << agenda[i].hour.minutos << "\n\n";
+        }
+    }
+    
+}

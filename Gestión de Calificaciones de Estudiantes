@@ -1,0 +1,125 @@
+#include <iostream>
+#include <array>
+#include <limits>
+
+using namespace std;
+
+// Ejercicio: Gestión de Calificaciones de Estudiantes
+
+// Prototipos de Función
+void imprimirCalificaciones(const std::array<std::array<int, 5>, 3>& arr);
+double calcularPromedioEstudiante(const std::array<std::array<int, 5>, 3>& calificaciones, int estudiante);
+double calcularPromedioMateria(const std::array<std::array<int, 5>, 3>& calificaciones, int materia);
+int estudianteConMejorPromedio(const std::array<std::array<int, 5>, 3>& calificaciones);
+
+int main() {
+    std::array<std::array<int, 5>, 3> calificaciones; // Usamos 3 filas temporalmente para facilitar entrada por teclado
+    int opcion_estudiante = 0, opcion_materia = 0;
+
+    std::cout << "-------------------- Gestión de Calificaciones de Estudiantes --------------------" << endl;
+    std::cout << "Por favor ingrese la nota de 10 estudiantes en 5 materias para cada uno." << endl;
+    std::cout << "Nota máxima: 5\nNota mínima: 1\n\n";
+
+    for (int fila = 0; fila < calificaciones.size(); fila++) {
+        std::cout << "Estudiante " << (fila + 1) << endl;
+
+        for (int columna = 0; columna < calificaciones[fila].size(); columna++) {
+            std::cout << "Materia " << (columna + 1) << ": ";
+            std::cin >> calificaciones[fila][columna];
+
+            while (cin.fail() || calificaciones[fila][columna] < 0 || calificaciones[fila][columna] > 5) {
+                std::cin.clear();
+                std::cin.ignore(100, '\n');
+                std::cout << "Entrada inválida, inténtelo de nuevo." << endl;
+                std::cout << "Materia " << (columna + 1) << ": ";
+                std::cin >> calificaciones[fila][columna];
+            }
+        }
+
+        std::cout << endl;
+    }
+
+    // Mostrar la matriz ingresada
+    std::cout << "La matriz ingresada es:" << endl;
+    imprimirCalificaciones(calificaciones);
+
+    // Calcular promedio de un estudiante
+    std::cout << "\nIngrese el número de un estudiante (1 al 10) para calcular su promedio de notas." << endl;
+    std::cout << "Estudiante seleccionado: ";
+    std::cin >> opcion_estudiante;
+
+    std::cout << "El promedio del estudiante " << opcion_estudiante << " es: "
+              << calcularPromedioEstudiante(calificaciones, opcion_estudiante) << endl;
+
+    // Calcular promedio de una materia
+    std::cout << "\nIngrese la materia (1 al 5) para calcular el promedio de calificaciones." << endl;
+    std::cout << "Materia seleccionada: ";
+    std::cin >> opcion_materia;
+
+    std::cout << "El promedio de calificaciones de la materia " << opcion_materia << " es: "
+              << calcularPromedioMateria(calificaciones, opcion_materia) << endl;
+
+    // Determinar el estudiante con mejor promedio
+    std::cout << "\nEl estudiante " << estudianteConMejorPromedio(calificaciones)
+              << " tiene el mejor promedio." << endl;
+
+    return 0;
+}
+
+// Función para imprimir la matriz en formato de tabla simple
+void imprimirCalificaciones(const std::array<std::array<int, 5>, 3>& arr) {
+    for (const auto& fila : arr) {
+        for (const auto& elemento : fila) {
+            std::cout << elemento << " ";
+        }
+        std::cout << endl;
+    }
+}
+
+// Función para calcular el promedio de las calificaciones de un estudiante
+double calcularPromedioEstudiante(const std::array<std::array<int, 5>, 3>& calificaciones, int estudiante) {
+    double suma = 0;
+
+    for (int i = 0; i < calificaciones[estudiante - 1].size(); i++) {
+        suma += calificaciones[estudiante - 1][i];
+    }
+
+    return suma / calificaciones[estudiante - 1].size();
+}
+
+// Función para calcular el promedio de notas de una materia
+double calcularPromedioMateria(const std::array<std::array<int, 5>, 3>& calificaciones, int materia) {
+    double suma = 0;
+
+    for (int i = 0; i < calificaciones.size(); i++) {
+        suma += calificaciones[i][materia - 1]; // Se fija la columna y se recorren las filas
+    }
+
+    return suma / calificaciones.size();
+}
+
+// Función para determinar el estudiante con mejor promedio
+int estudianteConMejorPromedio(const std::array<std::array<int, 5>, 3>& calificaciones) {
+    double promedio_maximo = std::numeric_limits<double>::lowest();
+    int estudiante_mejor = 0;
+
+    for (int fila = 0; fila < calificaciones.size(); fila++) {
+        double suma = 0;
+
+        for (int columna = 0; columna < calificaciones[fila].size(); columna++) {
+            suma += calificaciones[fila][columna];
+        }
+
+        double promediado = suma / calificaciones[fila].size();
+
+        if (promediado > promedio_maximo) {
+            promedio_maximo = promediado;
+            estudiante_mejor = fila + 1;
+        }
+    }
+
+    return estudiante_mejor;
+}
+
+
+//Ejercicio siguiente: https://www.blackbox.ai/share/51b86779-ff53-485c-b11f-aeb373097b2b

@@ -1,0 +1,302 @@
+#include <iostream>
+#include <random>
+#include <thread>
+#include <chrono>
+
+
+//Estructura para el nodo de lista doble
+struct nodo_doble {
+  int numero;
+  nodo_doble* anterior;
+  nodo_doble* siguiente;
+};
+
+//Estructura para nodo de lista simple
+struct nodo_simple {
+  int numero;
+  nodo_simple* siguiente;
+};
+
+//Prototipos de función
+void rellenar_nodo_doble (nodo_doble*& cabeza, nodo_doble*& cola, nodo_doble*& actual, std::mt19937& generador);
+void rellenar_nodo_simple (nodo_simple*& cabeza, nodo_simple*& actual, std::mt19937& generador);
+void mostrar_nodos (nodo_doble*& cabeza,  nodo_simple*& cabeza_simple,  nodo_simple*& actual_simple,  nodo_doble*& actual_doble);
+void eliminar_repetidos_simples (nodo_doble*& cabeza, nodo_simple*& cabeza_simple, nodo_doble*& actual_doble, nodo_simple*& actual_simple);
+void insertarDesimpleAdoble(nodo_doble*& cabeza_doble, nodo_doble*& cola_doble, nodo_doble*& actual_doble, nodo_simple*& cabeza_simple, nodo_simple*& actual_simple);
+
+int main() {
+  std::random_device semilla;
+  /* std::mt19937 generador2(semilla); */
+  std::mt19937 generador(semilla());
+  
+  nodo_doble* cabeza = nullptr;
+  nodo_doble* cola = nullptr;
+  nodo_doble* actual = nullptr;
+
+  nodo_simple* cabeza_simple = nullptr;
+  nodo_simple* actual_simple = nullptr;
+  nodo_simple* cola_simple = nullptr;
+
+  int cantidad_nodos;
+
+  std::cout << "¿Cuántos nodos desea crear en ambas listas?" << std::endl;
+  std::cin >> cantidad_nodos;
+
+  std::cout << "Rellenando nodos, espere un momento..." << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2)); // Espera 2 segundos
+
+  for (size_t i = 0; i < cantidad_nodos; i++) {
+    rellenar_nodo_doble(cabeza, cola, actual, generador);
+    rellenar_nodo_simple(cabeza_simple, actual_simple, generador);
+  }
+
+  mostrar_nodos(cabeza, cabeza_simple, actual_simple, actual);
+
+  std::cout << "Eliminando nodos repetidos, espere un momento..." << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2)); // Espera 2 segundos
+  eliminar_repetidos_simples(cabeza, cabeza_simple, actual, actual_simple);
+
+  mostrar_nodos(cabeza, cabeza_simple, actual_simple, actual);
+
+  //Insertar nodos no repetidos de la lista simple a la doble de manera ordenada...
+  std::cout << "Insertando nodos de lista simple a la doble, espere un momento..." << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2)); // Espera 2 segundos"
+  insertarDesimpleAdoble(cabeza, cola, actual, cabeza_simple, actual_simple);
+
+  std::cout << "Nodos de la lista doble después de la inserción:" << std::endl;
+  mostrar_nodos(cabeza, cabeza_simple, actual_simple, actual);
+  
+
+  return 0;
+}
+
+//Funciones
+void rellenar_nodo_doble(nodo_doble*& cabeza, nodo_doble*& cola, nodo_doble*& actual, std::mt19937& generador) {
+    std::uniform_int_distribution<int> dist(1, 10);
+    int numero = dist(generador);
+
+    nodo_doble* nuevo = new nodo_doble();
+    nuevo->numero = numero;
+    nuevo->siguiente = nullptr;
+    nuevo->anterior = nullptr;
+
+    // Caso 1: lista vacía
+    if (cabeza == nullptr) {
+        cabeza = cola = nuevo;
+        return;
+    }
+
+    // Caso 2: insertar al inicio (mayor a menor)
+    if (numero > cabeza->numero) {
+        nuevo->siguiente = cabeza;
+        cabeza->anterior = nuevo;
+        cabeza = nuevo;
+        return;
+    }
+
+    // Caso 3: insertar al final
+    if (numero < cola->numero) {
+        nuevo->anterior = cola;
+        cola->siguiente = nuevo;
+        cola = nuevo;
+        return;
+    }
+
+    // Caso 4: insertar en el medio
+    actual = cabeza;
+    while (actual->siguiente != nullptr && actual->siguiente->numero > numero) {
+        actual = actual->siguiente;
+    }
+
+    // En este punto, actual->siguiente puede ser nullptr (si va al final)
+    nuevo->siguiente = actual->siguiente;
+    nuevo->anterior = actual;
+
+    if (actual->siguiente != nullptr) {  // ⚠️ Solo si no estamos al final
+        actual->siguiente->anterior = nuevo;
+    } else {
+        cola = nuevo; // Por si resultó ser el último
+    }
+
+    actual->siguiente = nuevo;
+}
+
+
+void rellenar_nodo_simple (nodo_simple*& cabeza, nodo_simple*& actual, std::mt19937& generador) {
+  std::uniform_int_distribution<int> distribucion(1, 10);
+  int numero = distribucion(generador);
+
+  nodo_simple* nuevo_nodo = new nodo_simple();
+  nuevo_nodo->numero = numero;
+  nuevo_nodo->siguiente = nullptr;
+
+  //1er nodo
+  if (cabeza == nullptr) {
+    cabeza = nuevo_nodo;
+    cabeza->siguiente = nullptr;
+    actual = cabeza;
+    return;
+  } else {
+    actual->siguiente = nuevo_nodo;
+    actual = nuevo_nodo;
+    return;
+  }
+}
+
+
+void mostrar_nodos ( nodo_doble*& cabeza,  nodo_simple*& cabeza_simple,  nodo_simple*& actual_simple,  nodo_doble*& actual_doble) {
+std::cout << "Mostrando nodos, espere un momento..." << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2)); // Espera 2 segundos
+  
+  std::cout << "Nodos de lista doble:" << std::endl;
+  actual_doble = cabeza;
+  while (actual_doble != nullptr) {
+    std::cout << /* "["<< actual_doble <<"]" << " " <<  */actual_doble->numero << " " /* <<
+    "[" << actual_doble->siguiente << "]" */ << " <--> ";
+    actual_doble = actual_doble->siguiente;
+  }
+
+  std::cout << std::endl;
+
+  std::cout << "\nNodos de lista simple:" << std::endl;
+  actual_simple = cabeza_simple;
+  while (actual_simple != nullptr) {
+    std::cout << /* "["<< actual_simple <<"]" << " " << */ actual_simple->numero << " " /* <<
+    "[" << actual_simple->siguiente << "]"  */<< " -> ";
+    actual_simple = actual_simple->siguiente;
+  }
+
+  std::cout << std::endl;
+}
+
+
+void eliminar_repetidos_simples (nodo_doble*& cabeza_doble, nodo_simple*& cabeza_simple, nodo_doble*& actual_doble, nodo_simple*& actual_simple) {
+  /*1ro se revisa si alguno de los nodos simples se repite en la lista doble,
+    para eso hay que recorrer las 2 listas y comparar los nodos. 
+  */
+
+  actual_doble = cabeza_doble;
+  actual_simple = cabeza_simple;
+  nodo_simple* anterior_simple = nullptr;
+
+  bool bandera = true;
+
+
+  while (actual_simple != nullptr) {
+    // Bucles para saber qué valores se repiten en ambas listas.
+    while (actual_simple != nullptr && bandera) {
+      while (actual_doble != nullptr) {
+        if (actual_doble->numero == actual_simple->numero) {
+          std::cout << "Concidencia encontrada.\n";
+          bandera = false;
+          break;
+        }
+        else {
+          actual_doble = actual_doble->siguiente;
+        }
+      }
+
+      if (!bandera)
+        break;
+      actual_doble = cabeza_doble;
+      anterior_simple = actual_simple;
+      actual_simple = actual_simple->siguiente;
+    }
+
+    if (actual_simple != nullptr && !bandera) {
+      // Eliminar el nodo repetido de la lista simple.
+      // Si el nodo repetido es la cabeza:
+      if (actual_simple == cabeza_simple) {
+        cabeza_simple = cabeza_simple->siguiente;
+        delete actual_simple;
+
+        // Si el nodo repetido es el último:
+      }
+      else if (actual_simple->siguiente == nullptr) {
+        anterior_simple->siguiente = nullptr;
+        delete actual_simple;
+
+        // Si el nodo repetido está en el medio:
+      }
+      else {
+        anterior_simple->siguiente = actual_simple->siguiente;
+        delete actual_simple;
+      }
+    } else {
+      std::cout << "No se encontraron coincidencias.\n";
+      break; 
+    }
+    bandera = true;
+    actual_doble = cabeza_doble;
+    actual_simple = cabeza_simple;
+  }
+
+  //Bucle para saber qué valores se repiten en ambas listas SI SON DEL MISMO TAMAÑO.
+  /* while (actual_doble->siguiente != nullptr && actual_simple != nullptr) {
+    if (actual_doble->numero == actual_simple->numero) {
+      std::cout << "Concidencia encontrada.";
+      break;
+    }
+    actual_doble = actual_doble->siguiente;
+    actual_simple = actual_simple->siguiente;
+  } */
+
+}
+
+void insertarDesimpleAdoble(nodo_doble*& cabeza_doble, nodo_doble*& cola_doble, nodo_doble*& actual_doble, nodo_simple*& cabeza_simple, nodo_simple*& actual_simple) {
+  actual_simple = cabeza_simple;
+  actual_doble = cabeza_doble;
+  
+  //El bucle selecciona un nodo simple y lo inserta en la lista doble. No importa si se repite.
+  while (actual_simple != nullptr) {
+    if (actual_simple == nullptr) { //XD
+      break;
+    }
+    nodo_doble* nuevo_nodo = new nodo_doble();
+    nuevo_nodo->numero = actual_simple->numero;
+    nuevo_nodo->siguiente = nullptr;
+    nuevo_nodo->anterior = nullptr;
+
+    // Caso 1: lista vacía
+    if (cabeza_doble == nullptr) {
+        cabeza_doble = cola_doble = nuevo_nodo;
+        
+    }
+
+    // Caso 2: insertar al inicio (mayor a menor)
+    if (nuevo_nodo->numero > cabeza_doble->numero) {
+        nuevo_nodo->siguiente = cabeza_doble;
+        cabeza_doble->anterior = nuevo_nodo;
+        cabeza_doble = nuevo_nodo;
+        
+    }
+
+    // Caso 3: insertar al final
+    if (nuevo_nodo->numero < cola_doble->numero) {
+        nuevo_nodo->anterior = cola_doble;
+        cola_doble->siguiente = nuevo_nodo;
+        cola_doble = nuevo_nodo;
+        
+    }
+
+    // Caso 4: insertar en el medio
+    actual_doble = cabeza_doble;
+    while (actual_doble->siguiente != nullptr && actual_doble->siguiente->numero > nuevo_nodo->numero) {
+        actual_doble = actual_doble->siguiente;
+    }
+
+    // En este punto, actual->siguiente puede ser nullptr (si va al final)
+    nuevo_nodo->siguiente = actual_doble->siguiente;
+    nuevo_nodo->anterior = actual_doble;
+
+    if (actual_doble->siguiente != nullptr) {  // ⚠️ Solo si no estamos al final
+        actual_doble->siguiente->anterior = nuevo_nodo;
+    } else {
+        cola_doble = nuevo_nodo; // Por si resultó ser el último
+    }
+
+    actual_doble->siguiente = nuevo_nodo;
+    actual_simple = actual_simple->siguiente;
+  }
+  return;
+}
