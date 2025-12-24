@@ -112,5 +112,3 @@ int main() {
   
   return 0;
 }
-
-//Ejercicio: https://gemini.google.com/share/2689d294c1f2
